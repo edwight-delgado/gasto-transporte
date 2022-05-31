@@ -11,7 +11,7 @@
 		<link rel="icon" type="image/png" href="https://ds.mtnlss.co/favicon.png">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Press+Start+2P">
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css">
-
+		<link rel="stylesheet" href="https://unpkg.com/flatpickr/dist/flatpickr.min.css">
 
 	<link href="css/bundle.css" rel="stylesheet">
 	<style>
@@ -35,6 +35,16 @@
 			table .pagado{
 				background-color: #ccc;
 			}
+			.flatpickr-current-month{
+				font-size: 100% !important;
+				width: 100%;
+    			left: 0.5%;
+			}
+			.flatpickr-day.today {
+				border-color: #209cee;
+				background-color: #209cee;
+			}
+
 			.box-center{
 				padding: 1em;
 				max-width: 980px;
@@ -141,6 +151,49 @@
 				.pw-panel{display:none}
 			}
 			
+
+nes-select select:invalid {
+    color: #e76e55 !important;
+}
+.nes-select select, .filter-element input, .filter-element textarea {
+	border-image-slice: 2;
+    border-image-width: 2;
+    border-image-repeat: stretch;
+    border-image-source: url('data:image/svg+xml;utf8,<?xml version="1.0" encoding="UTF-8" ?><svg version="1.1" width="5" height="5" xmlns="http://www.w3.org/2000/svg"><path d="M2 1 h1 v1 h-1 z M1 2 h1 v1 h-1 z M3 2 h1 v1 h-1 z M2 3 h1 v1 h-1 z" fill="rgb(33,37,41)" /></svg>');
+    border-image-outset: 2;
+    width: 100%;
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAzElEQVRYR+2X0Q6AIAhF5f8/2jYXZkwEjNSVvVUjDpcrGgT7FUkI2D9xRfQETwNIiWO85wfINfQUEyxBG2ArsLwC0jioGt5zFcwF4OYDPi/mBYKm4t0U8ATgRm3ThFoAqkhNgWkA0jJLvaOVSs7j3qMnSgXWBMiWPXe94QqMBMBc1VZIvaTu5u5pQewq0EqNZvIEMCmxAawK0DNkay9QmfFNAJUXfgGgUkLaE7j/h8fnASkxHTz0DGIBMCnBeeM7AArpUd3mz2x3C7wADglA8BcWMZhZAAAAAElFTkSuQmCC) 14 0,pointer;
+    border-radius: 0;
+    outline-color: #e7e7e7;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #e7e7e7;
+	border: 4px solid;
+}
+
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: table;
+  transition: opacity 0.3s ease;
+}
+.modal-container {
+  width: 1000px;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
 	</style>
 </head>
 
@@ -168,6 +221,9 @@
 									<option value="Chucureo">
 										Chucureo
 									</option>
+									<option value="Santa Sofía">
+										Santa Sofía
+									</option>
 								</select>
 							</div>
 						</div> 
@@ -183,31 +239,112 @@
 						</div>
 						
 					</div> 
-					<button type="button" class="nes-btn is-primary">Filtrar</button> 
+					<button type="button" @click="showModal = true" class="nes-btn is-primary">Nuevo</button> 
 					<button type="button" class="nes-btn is-error">Reset</button>
 				</div>
 			</section> 
+			<!-- modal -->
+			  <transition name="modal" v-if="showModal" >
+				<div class="modal-mask">
+				  <div class="modal-wrapper">
+					<div class="modal-container">
+		  
+					  <section class="showcase svelte-fzd5cv">
+						  <div class="nes-container with-title is-centered">
+							  <p class="title svelte-fzd5cv" v-if="saveEdit==false">Nuevo Item</p> 
+							  <p class="title svelte-fzd5cv" v-if="saveEdit==true">Editar Item</p> 
+							  <div class="sidebyside svelte-fzd5cv">
+								  <div class="filter-element svelte-fzd5cv">
+									  <label for="default_select">Ubicación</label> 
+									  <div class="nes-select">
+										  <select required="" id="default_select" v-model="toDo.ubicacion">
+											<option value="" v-if="toDo.ubicacion =='' " selected>Todos</option>
+											<option :value="toDo.ubicacion" v-if="toDo.ubicacion !=='' " selected>{{toDo.ubicacion}}</option>
+											  <option v-for="ubicacion in ubicaciones" :value="ubicacion" >
+												  {{ubicacion}}
+											  </option>
+											  
+										  </select>
+									  </div>
+								  </div> 
+								  <div class="filter-element svelte-fzd5cv">
+									  <label for="default_select">personal</label> 
+										  <div class="nes-select">
+											  <select required="" id="default_select" v-model="toDo.nombre">
+													<option value="" v-if="toDo.nombre =='' " selected>Todos</option>
+													<option :value="toDo.nombre" v-if="toDo.nombre !=='' " selected>{{toDo.nombre}}</option>
+													  <option v-for="nombre in nombres" :value="nombre">
+														  {{nombre}}
+													  </option>
+											  </select>
+										  </div>
+								  </div>
+								  
+							  </div> 
+							  <div class="sidebyside svelte-fzd5cv">
+								  <div class="filter-element svelte-fzd5cv" style="width: 250px;">
+									  <label for="default_select">Gasto</label> 
+										  <input type="number" name="gasto" required placeholder="750" v-model="toDo.gasto"/>
+								  </div> 
+								  <div class="filter-element svelte-fzd5cv" style="width:250px;">
+									  <label for="default_select">Fecha</label> 
+									  <flatpickr v-model="date"></flatpickr>
+								  </div>
+								  <div class="filter-element svelte-fzd5cv" style="width:250px;">
+									<label for="default_select">Status</label> 
+									<div class="nes-select">
+										<select required="" id="default_select" v-model="toDo.pagado">
+											<option selected value="false">no pagado</option>
+											<option value="true">pagado</option>
+											
+										</select>
+									</div>
+								</div>
+								  
+							  </div>
+							  <div class="sidebyside svelte-fzd5cv">
+								  <div class="filter-element svelte-fzd5cv" style="width: 100%;">
+									  <textarea name="info" id="info" style="height: 177px;" placeholder="información" required v-model="toDo.info"></textarea>
+								  </div>
+							  </div>
+							  <button type="button" class="nes-btn is-primary" @click="addItem" v-if="saveEdit==false">Agregar</button> 
+							  <button type="button" class="nes-btn is-primary" v-if="saveEdit==true" @click="saveItem">Guardar</button>
+							  <button type="button" class="nes-btn is-error" @click="close" >Borrar</button>
+							  
+						  </div>
+					  </section> 
+		  
+						
+					  
+					</div>
+				  </div>
+				</div>
+			  </transition>
+			
+			<!-- end seccion modal-->
 			<section class="topic svelte-fzd5cv">
 				<div class="nes-table-responsive">
 					<table class="nes-table is-bordered is-centered">
 						<thead>
 							<tr>
-								<th>ID</th> 
+								<th>ID</th>
 								<th>Nombre</th> 
 								<th>Info</th> 
 								<th>Ubicación</th> 
 								<th>Gasto</th> 
 								<th>Fecha</th>
+								<th>Acción</th>
 							</tr>
 						</thead> 
 						<tbody>
-							<tr v-for="item in filter_items" :class="{ pagado: item.pagado }">
-								<td>{{item.id}}</td> 
+							<tr v-for="(item, index) in filter_items" :class="{ pagado: item.pagado }">
+								<td>{{index}}</td>
 								<td>{{item.nombre}}</td> 
 								<td>{{item.info}}</td> 
 								<td>{{item.ubicacion}}</td> 
 								<td>{{item.gasto}}</td> 
 								<td>{{item.fecha}}</td> 
+								<td><button type="button" class="nes-btn is-primary" @click="editItem(index,item)">editar</button></td>
 							</tr>
 							
 						</tbody>
@@ -232,129 +369,192 @@
 	  <a href="https://github.com/edwight-delgado">Fork me on GitHub</a>
 	</div>
   </div>
-<footer class="svelte-fzd5cv box-center text-center"><p>Made in <a href="https://svelte.dev/" target="_blank" rel="noopener">Vuejs</a> with ❤️ by 
+<footer class="svelte-fzd5cv box-center text-center"><p>Made in <a href="https://vuejs.org/" target="_blank" rel="noopener">Vuejs</a> with ❤️ by 
 	<a href="#" target="_blank" rel="noopener">@Edwight</a></p>
 </footer> </body></html>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+<script src="https://unpkg.com/flatpickr"></script>
+
+
+<script type="text/x-template" id="datepicker">
+	<div>
+	  <input 
+		class="datepicker" 
+		type="text" 
+		placeholder="Select Date.."
+		@input="onInput">
+	</div>
+</script>
+
 <script>
+ 
+
+Vue.component('flatpickr', {
+  template: '#datepicker',
+  mounted: function() {
+    flatpickr(".datepicker", {
+      altFormat: 'n/j/y',
+      altInput: true
+    })
+  },
+  methods: {
+    onInput: function(e) {
+      this.$emit('input', e.target.value);
+    }
+  }
+  
+})
 
 const app = new Vue({
   el: '#app',
   mounted() {
     if (localStorage.getItem('transport')) {
-      this.list = JSON.parse(localStorage.getItem('transport')); 
-      if(this.list.length) this.show = true;
+      this.items = JSON.parse(localStorage.getItem('transport')); 
+      if(this.items.length) this.show = true;
     }
   },
   data: {
-    show: false,
+	showModal: false,
     edit: false,
     titleApp: 'Lista de Gasto de Transporte',
-    toDo: '',
 	selectedUbicacion: '',
     selectedNombre: '',
-	month: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+	inputGasto:0,
+	date: '2017-10-01',
+	saveEdit:false,
 	date_m:new Date(),
+	nombres:['Edwight Delgado'],
+	ubicaciones:['Talagante','Chucureo','Santa Sofia'],
+    toDo: {'nombre':'','ubicacion':'','info':'','gasto':0,'fecha':null,'pagado':false},
+	month: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
 
     items: [
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 2 2022','gasto':2800,'pagado':true},
+	{'id':0,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 2 2022','gasto':2800,'pagado':true},
 	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 3 2022','gasto':2800,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 4 2022','gasto':2800,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 5 2022','gasto':2800,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 6 2022','gasto':2800,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto dirección a Talagante (reunion de personal)','fecha':'May 7 2022','gasto':1400,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 9 2022','gasto':2800,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 10 2022','gasto':2800,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y (venida con dago)','fecha':'May 11 2022','gasto':1400,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida con dago','fecha':'May 12 2022','gasto':0,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida con dago','fecha':'May 13 2022','gasto':0,'pagado':true},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 16 2022','gasto':2800,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 17 2022','gasto':2800,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 18 2022','gasto':2800,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 19 2022','gasto':2800,'pagado':false},
-	{'id':1,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 20 2022','gasto':2800,'pagado':false},
-
-
+	{'id':3,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 4 2022','gasto':2800,'pagado':true},
+	{'id':4,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 5 2022','gasto':2800,'pagado':true},
+	{'id':5,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 6 2022','gasto':2800,'pagado':true},
+	{'id':6,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto dirección a Talagante (reunion de personal)','fecha':'May 7 2022','gasto':1400,'pagado':true},
+	{'id':7,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 9 2022','gasto':2800,'pagado':true},
+	{'id':8,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida (pagado 15.000)','fecha':'May 10 2022','gasto':2800,'pagado':true},
+	{'id':9,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 11 2022','gasto':2800,'pagado':true},
+	{'id':10,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 12 2022','gasto':2800,'pagado':true},
+	{'id':11,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 13 2022','gasto':2800,'pagado':true},
+	{'id':12,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 16 2022','gasto':2800,'pagado':true},
+	{'id':13,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 17 2022','gasto':2800,'pagado':true},
+	{'id':14,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 18 2022','gasto':2800,'pagado':false},
+	{'id':15,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 19 2022','gasto':2800,'pagado':false},
+	{'id':16,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 20 2022','gasto':2800,'pagado':false},
+	{'id':17,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 23 2022','gasto':2800,'pagado':false},
+	{'id':18,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida (pagado 20.000)','fecha':'May 24 2022','gasto':2800,'pagado':false},
+	{'id':19,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 25 2022','gasto':2800,'pagado':false},
+	{'id':20,'nombre':'Edwight Delgado','ubicacion':'Santa Sofía','info':'gasto ida y venida','fecha':'May 26 2022','gasto':1500,'pagado':false},
+	{'id':21,'nombre':'Edwight Delgado','ubicacion':'Santa Sofía','info':'gasto ida y venida','fecha':'May 27 2022','gasto':1500,'pagado':false},
+	{'id':22,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 30 2022','gasto':2800,'pagado':false},
+	{'id':23,'nombre':'Edwight Delgado','ubicacion':'Talagante','info':'gasto ida y venida','fecha':'May 31 2022','gasto':2800,'pagado':false},
 	]
-  },
-   methods: {
-    addItem: function(e) {
-      if (e.keyCode === 13) {
-        
-        if(this.toDo == '') return;
-        
-        if(this.edit) {
-          this.list[this.list.indexOf(this.edit)].text = this.toDo
-          this.edit = false;
-          this.toDo = "";
-          this.persist()
-          return
-        }
+},
 
-        if(!this.show) this.show = true;
-        this.list.push({id:new Date().getTime(), text:this.toDo, complete:false });
-        this.toDo = "";
-        this.persist()
-      }     
-    },
-    editItem: function(todo) {
-      this.toDo = todo.text;
-      this.edit = todo;
-    },
-    removeItem: function(todo) {      
-      this.list.splice(this.list.indexOf(todo), 1);
-      
-      if(!this.list.length) this.show = false;
-      
-      this.persist()
-    },
-    completeItem: function(todo) {      
-      this.list[this.list.indexOf(todo)].complete = !todo.complete;
-      this.persist()
-    },
-    persist: function(){
-      localStorage.setItem('toDos', JSON.stringify(this.list));
-    },
-	filterItemsByUbicacion: function(items){
-                return items.filter(item => !item.ubicacion.indexOf(this.selectedUbicacion))
-            },
+  methods: {
+		addItem: function(value) {
+			
+		this.saveEdit=false;
+			this.items.push({
+				nombre:this.toDo.nombre, 
+				ubicacion:this.toDo.ubicacion, 
+				info:this.toDo.info,
+				fecha:this.date,
+				gasto:parseInt(this.toDo.gasto),
+				pagado:this.toDo.pagado
+			});
+			this.toDo = {'nombre':'','ubicacion':'','info':'','gasto':0,'fecha':this.date},
+			this.persist();  
+			this.close();  
+		},
+		editItem: function(index,todo) {
+			//this.toDo = todo.text;
+			//this.edit = todo;
+			this.showModal=true;
+			this.toDo.ubicacion = todo.ubicacion;
+			this.items[index].ubicacion = todo.ubicacion;
+			
+			this.toDo.gasto = todo.gasto;
+			this.items[index].gasto = parseInt(todo.gasto);
+			this.toDo.date = '2017-10-01' ;
+			
+			this.toDo.info = todo.info;
+			this.items[index].info = todo.info;
+			
+			this.toDo.nombre = todo.nombre;
+			this.items[index].nombre = todo.nombre;
+			console.log(this.items[index])
+			this.toDo.pagado = todo.pagado;
+			this.items[index].pagado = todo.pagado;
+			this.saveEdit = true;
 
-    filterProductsByName: function(items) {
-                return items.filter(item => !item.nombre.indexOf(this.selectedNombre))
-            },
-   },
-  computed:{
-    toDos(){
-      return this.items.length;
-    },
-    completed(){
-      let complete =  this.items.filter( item => item.complete == true);
-      return complete.length;
-    },
+		},
+		saveItem:function(){
+			this.persist();
+			this.close();
+			this.saveEdit =false;
+		},
+		removeItem: function(todo) {      
+			this.items.splice(this.list.indexOf(todo), 1);
+			
+			if(!this.items.length) this.show = false;
+			
+			this.persist()
+		},
+		completeItem: function(todo) {      
+			this.list[this.list.indexOf(todo)].complete = !todo.complete;
+			this.persist()
+		},
+		persist: function(){
+			localStorage.setItem('toDos', JSON.stringify(this.items));
+		},
+		filterItemsByUbicacion: function(items){
+					return items.filter(item => !item.ubicacion.indexOf(this.selectedUbicacion))
+				},
 
-	filter_items: function(){
-                return this.filterProductsByName(this.filterItemsByUbicacion(this.items))
-            },
-  
-	gasto_total() {
-        return this.items.reduce((sum, item) => {
-				return (item.pagado!=false) ? sum: sum += item.gasto;
+		filterProductsByName: function(items) {
+					return items.filter(item => !item.nombre.indexOf(this.selectedNombre))
+		},
+		close:function(){
+			this.showModal=false;
+		}
+	},
+	computed:{
+		toDos(){
+		return this.items.length;
+		},
+		completed(){
+		let complete =  this.items.filter( item => item.complete == true);
+		return complete.length;
+		},
 
-        }, 0);
+		filter_items: function(){
+					return this.filterProductsByName(this.filterItemsByUbicacion(this.items))
+				},
 	
-    },
-	pagado_total() {
-        return this.items.reduce((sum, item) => {
-				return (item.pagado!=true) ? sum: sum += item.gasto;
+		gasto_total() {
+			return this.items.reduce((sum, item) => {
+					return (item.pagado!=false) ? sum: sum += item.gasto;
 
-        }, 0);
-  	},
-	  get_month(){
-		return this.month[this.date_m.getMonth()];
+			}, 0);
+		
+		},
+		pagado_total() {
+			return this.items.reduce((sum, item) => {
+					return (item.pagado!=true) ? sum: sum += item.gasto;
 
-	  }
-	}
+			}, 0);
+		},
+		get_month(){
+			return this.month[this.date_m.getMonth()];
+
+		},
+	},
 });
 </script>
